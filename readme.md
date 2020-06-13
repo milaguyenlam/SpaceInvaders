@@ -2,12 +2,12 @@
 
 ## Execute
 
-- run "java -jar -Dfile.encoding=UTF-8 space-invaders-1.0-SNAPSHOT-jar-with-dependencies.jar" to run the game (in target folder)
+- run "java -jar space-invaders-1.0-SNAPSHOT-jar-with-dependencies.jar" to run the game (in target folder)
 
 ## Install
 
-- run "mvn install" in project folder
-- run "java -jar -Dfile.encoding=UTF-8 space-invaders-1.0-SNAPSHOT-jar-with-dependencies.jar" to run the game (in target folder)
+- run "mvn clean package" in project folder
+- run "java -jar space-invaders-1.0-SNAPSHOT-jar-with-dependencies.jar" to run the game (in target folder)
 
 ## Controls and rules
 
