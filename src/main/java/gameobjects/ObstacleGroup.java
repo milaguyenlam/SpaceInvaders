@@ -1,31 +1,43 @@
 package gameobjects;
 
-import controllers.Board;
+import gameboards.Board;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static controllers.Constants.GUARD_POSX;
-import static controllers.Constants.GUARD_POSY;
+import static gameboards.Constants.OBSTACLE_POSX;
+import static gameboards.Constants.OBSTACLE_POSY;
 
-public class GuardGroup {
-    List<Guard> guards;
+public class ObstacleGroup {
+    List<Obstacle> obstacles;
 
-    public GuardGroup() {
-        guards = new ArrayList<>();
+    /**
+     * initializes 4 Obstacle instances, 125 pixels from each other (vertically)
+     */
+    public ObstacleGroup() {
+        obstacles = new ArrayList<>();
         for(int i=0; i<4 ; i++) {
-            guards.add(new Guard(GUARD_POSX + i * 125, GUARD_POSY));
+            obstacles.add(new Obstacle(OBSTACLE_POSX + i * 125, OBSTACLE_POSY));
         }
     }
 
+    /**
+     * calls draw() method on every Obstacle instance
+     * @param g Graphics class instance that is used for rendering
+     * @param b Board to render GameObject's sprite on
+     */
     public void draw(Graphics g, Board b) {
-        for (Guard guard : guards) {
-            guard.draw(g, b);
+        for (Obstacle obstacle : obstacles) {
+            obstacle.draw(g, b);
         }
     }
 
-    public List<Guard> getGuards() {
-        return guards;
+    /**
+     * get List<Obstacle> of actual obstacles inside ObstacleGroup
+     * @return actual obstacles inside ObstacleGroup
+     */
+    public List<Obstacle> getObstacles() {
+        return obstacles;
     }
 }

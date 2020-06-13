@@ -1,5 +1,8 @@
-package controllers;
+package gameboards;
 
+/**
+ * Static class holding all the constant values that are used in Board (gameobject sizes, speeds, ...)
+ */
 public class Constants {
     public static final int PLAYER_DIE_POINTS = -3;
     public static final int ENEMY_DIE_POINTS = 1;
@@ -27,7 +30,4 @@ public class Constants {
     public static final int OBSTACLE_POSX = 90;
     public static final int OBSTACLE_POSY = 300;
     public static final int NUMBER_OF_ENEMIES = 32;
-    public static final String DB_SCORES_COLLECTION = "scores";
-    public static final String DB_SCORE_ATTRIBUTE = "score";
-    public static final String DB_NAME_ATTRIBUTE = "name";
 }

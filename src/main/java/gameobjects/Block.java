@@ -1,16 +1,25 @@
 package gameobjects;
 
-import controllers.Commons;
+import java.io.IOException;
 
-import java.awt.*;
-import static controllers.Commons.SQUARE_SIZE;
+import static gameboards.Constants.BLOCK_SIZE;
 
-class Square extends GameObject  {
-    Square(int x, int y) {
+class Block extends GameObject  {
+    /**
+     * initializes Block instance at given coordinates
+     * loads "block.png" as its sprite
+     * width and height = BLOCK_SIZE
+     * @param x vertical coordinate
+     * @param y horizontal coordinate
+     */
+    Block(int x, int y) {
         super(x, y);
-        loadImage("./src/main/resources/block.png");
-        width = SQUARE_SIZE;
-        height = SQUARE_SIZE;
+        try {
+            loadSprite("block.png");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        width = BLOCK_SIZE;
+        height = BLOCK_SIZE;
     }
-
 }

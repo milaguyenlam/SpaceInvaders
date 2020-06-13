@@ -1,20 +1,39 @@
 package gameobjects;
 
-import static controllers.Constants.*;
+import java.io.IOException;
 
-public class Bomb extends MovingObject {
+import static gameboards.Constants.*;
 
-    Bomb(int x, int y) {
+public class EnemyShot extends MovingObject {
+
+    /**
+     * initializes EnemyShot instance at given coordinates
+     * loads "enemyShot.png" as its sprite
+     * width= ENEMY_SHOT_WIDTH
+     * height= ENEMY_SHOT_HEIGHT
+     * dx = 0
+     * dy = ENEMY_SHOT_SPEED
+     * @param x vertical coordinate
+     * @param y horizontal coordinate
+     */
+    EnemyShot(int x, int y) {
         super(x, y);
-        loadImage("./src/main/resources/bomb.png");
-        width=BOMB_WIDTH;
-        height=BOMB_HEIGHT;
-        dy=BOMB_SPEED;
+        try {
+            loadSprite("enemyShot.png");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        width= ENEMY_SHOT_WIDTH;
+        height= ENEMY_SHOT_HEIGHT;
+        dy= ENEMY_SHOT_SPEED;
     }
 
+    /**
+     * moves the shot or dies if reached the ground
+     */
     @Override
     public void move() {
-        if(y>GROUND-BOMB_HEIGHT)
+        if(y>GROUND-ENEMY_SHOT_HEIGHT)
             this.die();
         super.move();
     }

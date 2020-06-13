@@ -1,30 +1,41 @@
 package gameobjects;
 
-import controllers.Board;
+import gameboards.Board;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import static controllers.Constants.*;
+import static gameboards.Constants.*;
 
-public class EnemyWave {
+public class EnemyGroup {
 
     private List<Enemy> enemies;
     private Integer numberOfEnemies;
     private int enemySpeed;
 
+    /**
+     * get List<Enemy> of actual enemies inside EnemyWave
+     * @return actual enemies inside EnemyWave
+     */
     public List<Enemy> getEnemies() {
         return enemies;
     }
 
+    /**
+     * get current number of enemies
+     * @return current number of enemies
+     */
     public Integer getNumberOfEnemies() {
         return numberOfEnemies;
     }
 
+    /**
+     * decrease number of enemies (only variable that represents that)
+     */
     public void decreaseNumberOfEnemies() {
         numberOfEnemies--;
     }
 
-    public EnemyWave() {
+    public EnemyGroup() {
         enemies = new ArrayList<>();
         for(int i=0; i<4; i++) {
             for (int j = 0; j < 8; j++) {
@@ -35,32 +46,49 @@ public class EnemyWave {
         enemySpeed=1;
     }
 
+    /**
+     * draws every enemy and its shot in EnemyWave
+     * @param g Graphics class instance that is used for rendering
+     * @param board Board to render GameObject's sprite on
+     */
     public void draw(Graphics g, Board board) {
         for (Enemy enemy : enemies) {
             if (enemy.visible)
                 enemy.draw(g, board);
-            if (enemy.bomb.visible)
-                enemy.bomb.draw(g, board);
+            if (enemy.enemyShot.visible)
+                enemy.enemyShot.draw(g, board);
         }
     }
 
+    /**
+     * move with every enemy and its shots
+     * accelerate if needed
+     * turn in the opposite direction if hit the side (left, right)
+     */
     public void move() {
         fixStatus();
-        bombMove();
+        shotMove();
         shooting();
         accelerateIfNeeded();
         turnAroundIfHitTheWall();
     }
 
+    /**
+     * determines if EnemyWave reached the ground
+     * @return boolean if wave reached the ground or not
+     */
     public boolean reachedTheGround() {
         for(Enemy enemy: enemies) {
-            if (enemy.visible && enemy.y + enemy.height > GUARD_POSY) {
+            if (enemy.visible && enemy.y + enemy.height > OBSTACLE_POSY) {
                 return true;
             }
         }
         return false;
     }
 
+    /**
+     * helper method for dealing with every enemy's state (especially for explosion rendering)
+     */
     private void fixStatus() {
         for(Enemy enemy : enemies) {
             if(enemy.dying) {
@@ -76,20 +104,29 @@ public class EnemyWave {
         }
     }
 
-    private void bombMove() {
+    /**
+     * moves every enemy's shot
+     */
+    private void shotMove() {
         for(Enemy enemy: enemies) {
-            if(enemy.bomb.visible) {
-                enemy.bomb.move();
+            if(enemy.enemyShot.visible) {
+                enemy.enemyShot.move();
             }
         }
     }
 
+    /**
+     * tries to shoot for every enemy in the EnemyWave
+     */
     private void shooting() {
         for(Enemy enemy: enemies) {
             enemy.tryToShoot();
         }
     }
 
+    /**
+     * if number of enemies reaches a certain point, accelerate
+     */
     private void accelerateIfNeeded() {
         boolean b=false;
 
@@ -111,6 +148,9 @@ public class EnemyWave {
         }
     }
 
+    /**
+     * turns to the opposite direction if hit the wall (left, right)
+     */
     private void turnAroundIfHitTheWall() {
         for(Enemy enemy: enemies) {
             if(enemy.x>BOARD_WIDTH-ENEMY_WIDTH) {

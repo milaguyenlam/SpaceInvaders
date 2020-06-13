@@ -1,37 +1,74 @@
-package sprites;
+package gameobjects;
 
 import java.awt.event.KeyEvent;
-import static game.Commons.*;
+import java.io.IOException;
+
+import static gameboards.Constants.*;
 
 public class Player extends MovingObject {
 
-    private Missile m;
+    private PlayerShot s;
 
+    /**
+     * initializes Player instance at given coordinates
+     * loads "player.png" as its sprite
+     * width = PLAYER_WIDTH
+     * height = PLAYER_HEIGHT
+     * dx = 0
+     * dy = 0
+     * links its PlayerShot instance
+     * @param x vertical coordinate
+     * @param y horizontal coordinate
+     */
     public Player (int x, int y) {
         super(x, y);
-        loadImage("./src/main/resources/player.png");
+        try {
+            loadSprite("player.png");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         width=PLAYER_WIDTH;
         height=PLAYER_HEIGHT;
-        m = new Missile(0, 0);
-        m.die();
+        s = new PlayerShot(0, 0);
+        s.die();
     }
 
-    public Missile getM() {
-        return m;
+    /**
+     * Shot instance getter
+     * @return Shot instance linked with (this) Player instance
+     */
+    public PlayerShot getShot() {
+        return s;
     }
 
+    /**
+     * makes player live again
+     * reloads players sprite and centers his position
+     */
     public void revive() {
-        loadImage("./src/main/resources/player.png");
+        try {
+            loadSprite("player.png");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         setDying(false);
         x=BOARD_WIDTH/2;
     }
 
-    public void missileMove() {
-        if(m.isVisible()) {
-            m.move();
+    /**
+     * move with player's shot
+     */
+    public void shotMove() {
+        if(s.isVisible()) {
+            s.move();
         }
     }
 
+    /**
+     * move player in corresponding direction if any of arrow keys were pressed
+     * shoot if space was pressed
+     * @param keyCode
+     */
     public void keyPressed(int keyCode) {
         if (keyCode == KeyEvent.VK_LEFT) {
             dx = -PLAYER_SPEED;
@@ -40,14 +77,18 @@ public class Player extends MovingObject {
             dx = PLAYER_SPEED;
         }
         if (keyCode == KeyEvent.VK_SPACE) {
-            if(!m.visible) {
-                m.visible=true;
-                m.x=this.x + PLAYER_WIDTH/2;
-                m.y=this.y;
+            if(!s.visible) {
+                s.visible=true;
+                s.x=this.x + PLAYER_WIDTH/2;
+                s.y=this.y;
             }
         }
     }
 
+    /**
+     * stops player from moving if any of arrow keys were released
+     * @param keyCode key that was released
+     */
     public void keyReleased(int keyCode) {
         if(keyCode==KeyEvent.VK_LEFT) {
             dx=0;
@@ -57,6 +98,9 @@ public class Player extends MovingObject {
         }
     }
 
+    /**
+     * moves player, doesn't let player move outside the left/right walls
+     */
     @Override
     public void move() {
         if(x>BOARD_WIDTH-PLAYER_WIDTH)

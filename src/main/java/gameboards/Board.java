@@ -1,5 +1,6 @@
-package controllers;
+package gameboards;
 
+import controllers.GameManager;
 import gameobjects.*;
 
 import javax.swing.*;
@@ -7,13 +8,13 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
-import static controllers.Constants.*;
+import static gameboards.Constants.*;
 
 public class Board extends JPanel implements Runnable {
-    private GameController gameController;
+    private GameManager gameManager;
     private Player player;
     private EnemyGroup enemyGroup;
-    private ObstacleGroup guards;
+    private ObstacleGroup obstacles;
 
     private Integer score;
 
@@ -24,23 +25,35 @@ public class Board extends JPanel implements Runnable {
     private ActionMap actionMap = this.getActionMap();
 
 
-    public Board(GameController gameController) {
-        this.gameController = gameController;
+    /**
+     * initializes all game objects and initial values
+     * initializes JPanel settings, registers used keys (for controlling the game)
+     * assign GameManager
+     * @param gameManager GameManager class instance to interact with
+     */
+    public Board(GameManager gameManager) {
+        this.gameManager = gameManager;
         setFocusable(true);
         setBackground(Color.BLACK);
         initializeBoard();
         registerKeys();
     }
 
+    /**
+     * initializes all game objects and initial values
+     */
     private void initializeBoard() {
         inGame=true;
         lives=3;
         player=new Player(START_X, START_Y);
         enemyGroup = new EnemyGroup();
-        guards = new ObstacleGroup();
+        obstacles = new ObstacleGroup();
         score = 0;
     }
 
+    /**
+     * registers keys and their actions using Action API
+     */
     private void registerKeys() {
         addPlayerKeyBindings(KeyEvent.VK_LEFT, "left");
         addPlayerKeyBindings(KeyEvent.VK_RIGHT, "right");
@@ -49,16 +62,27 @@ public class Board extends JPanel implements Runnable {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 inGame = false;
-                gameController.getBackToMainMenu();
+                gameManager.getBackToMainMenu();
             }
         });
     }
 
+    /**
+     * registers a key with custom action (that will be executed whenever clicked)
+     * @param keyCode code of to be registered key
+     * @param id id of the pair (key+action)
+     * @param action action to be done when key pressed
+     */
     private void addCustomKeyBindings(int keyCode, String id, AbstractAction action) {
         inputMap.put(KeyStroke.getKeyStroke(keyCode, 0, false), id);
         actionMap.put(id, action);
     }
 
+    /**
+     * registers a key (both pressing and releasing), action is just propagating the keycode to the Player class instance
+     * @param keyCode code of to be registered key
+     * @param id id of the pair (key+action)
+     */
     private void addPlayerKeyBindings(int keyCode, String id) {
         inputMap.put(KeyStroke.getKeyStroke(keyCode, 0, false), id);
         inputMap.put(KeyStroke.getKeyStroke(keyCode,0, true), id+"-release");
@@ -76,6 +100,9 @@ public class Board extends JPanel implements Runnable {
         });
     }
 
+    /**
+     * starts thread execution - starting the game and calls its parent's (JPanel) addNotify() function
+     */
     @Override
     public void addNotify() {
         super.addNotify();
@@ -83,6 +110,9 @@ public class Board extends JPanel implements Runnable {
         animator.start();
     }
 
+    /**
+     * basic game loop mechanism (refreshes after FRAME_REFRESH_TIME)
+     */
     @Override
     public void run() {
 
@@ -92,7 +122,7 @@ public class Board extends JPanel implements Runnable {
 
         while(inGame) {
             repaint();
-            renderFrame();
+            refreshFrame();
 
             timeDiff = System.currentTimeMillis() - beforeTime;
             sleep = FRAME_REFRESH_TIME - timeDiff;
@@ -110,6 +140,11 @@ public class Board extends JPanel implements Runnable {
 
     }
 
+    /**
+     * rendering all game objects (and their shots if they have any) - calling their draw() method
+     * rendering lives and scores indicators
+     * @param g Graphics class instance that is used for rendering
+     */
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -130,13 +165,20 @@ public class Board extends JPanel implements Runnable {
 
         enemyGroup.draw(g, this);
 
-        guards.draw(g, this);
+        obstacles.draw(g, this);
     }
 
-    public void renderFrame() {
+    /**
+     * refreshes frame
+     * checks if there game has already ended and if so calls gameManager.renderAfterGame(int score) method with gained score
+     * if players state is set to "dying" then decrement lives variable and revive the player
+     * if game still continues then moves with every movable game object
+     * resolve collisions between game objects
+     */
+    public void refreshFrame() {
         if(enemyGroup.getNumberOfEnemies()==0) {
             inGame=false;
-            gameController.renderAfterGame(score);
+            gameManager.renderAfterGame(score);
         }
 
         if(player.isDying()) {
@@ -144,14 +186,14 @@ public class Board extends JPanel implements Runnable {
             if(lives!=0) player.revive();
             else {
                 inGame=false;
-                gameController.renderAfterGame(score);
+                gameManager.renderAfterGame(score);
             }
         }
 
         if(enemyGroup.reachedTheGround()) {
             inGame=false;
             score += ENEMY_REACHES_GROUND_POINTS;
-            gameController.renderAfterGame(score);
+            gameManager.renderAfterGame(score);
         }
 
         player.move();
@@ -160,13 +202,23 @@ public class Board extends JPanel implements Runnable {
         resolveCollisions();
     }
 
+    /**
+     * resolving collisions
+     * - player shot and enemies
+     * - enemy shots and player
+     * - both player/enemy shot and obstacles
+     */
     private void resolveCollisions() {
-        collisionMissileEnemies();
-        collisionBombPlayer();
-        collisionWithGuards();
+        collisionPlayerShotEnemies();
+        collisionEnemyShotPlayer();
+        collisionShotsObstacles();
     }
 
-    private void collisionMissileEnemies() {
+    /**
+     * resolves collision between player's shot and enemies
+     * if an enemy is hit then kill both the enemy and the shot, increase points (+1)
+     */
+    private void collisionPlayerShotEnemies() {
         if(player.getShot().isVisible()) {
             for (Enemy enemy : enemyGroup.getEnemies())
                 if(enemy.isVisible() && player.getShot().collisionWith(enemy)) {
@@ -178,7 +230,11 @@ public class Board extends JPanel implements Runnable {
         }
     }
 
-    private void collisionBombPlayer() {
+    /**
+     * resolves collision between enemy's shot and the player
+     * if the player is hit then kill both the player and the shot, decrease points (-3)
+     */
+    private void collisionEnemyShotPlayer() {
         for(Enemy enemy : enemyGroup.getEnemies()) {
             if (enemy.getShot().isVisible() && enemy.getShot().collisionWith(player)) {
                 player.explosion();
@@ -188,8 +244,12 @@ public class Board extends JPanel implements Runnable {
         }
     }
 
-    private void collisionWithGuards() {
-        for(Obstacle obstacle : guards.getObstacles()) {
+    /**
+     * resolves collision between both enemy/player shots and the obstacles
+     * if an obstacle is hit then kill the shot and corresponding obstacle Block instance
+     */
+    private void collisionShotsObstacles() {
+        for(Obstacle obstacle : obstacles.getObstacles()) {
             obstacle.collisionWith(player.getShot());
             for (Enemy enemy : enemyGroup.getEnemies()) {
                 obstacle.collisionWith(enemy.getShot());

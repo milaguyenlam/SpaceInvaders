@@ -1,47 +1,75 @@
-package sprites;
+package gameobjects;
 
+import java.io.IOException;
 import java.util.Random;
-import static game.Commons.ENEMY_HEIGHT;
-import static game.Commons.ENEMY_WIDTH;
+import static gameboards.Constants.ENEMY_HEIGHT;
+import static gameboards.Constants.ENEMY_WIDTH;
 
+/**
+ * Enemy Game Object
+ *
+ */
 public class Enemy extends MovingObject {
 
-    Bomb bomb;
-    boolean almostDied;     //for proper projection of explosion
+    EnemyShot enemyShot;
+    //for proper projection of explosion
+    boolean almostDied;
+    //for determining if enemy should shoot or not
     private Random rand;
 
-    public Bomb getBomb() {
-        return bomb;
+    /**
+     * Shot instance getter
+     * @return Shot instance linked with (this) Enemy instance
+     */
+    public EnemyShot getShot() {
+        return enemyShot;
     }
 
+    /**
+     * initializes Enemy instance at given coordinates
+     * loads "enemy.png" as its sprite
+     * width = ENEMY_WIDTH
+     * height = ENEMY_HEIGHT
+     * dx = 1
+     * dy = 0
+     * links its EnemyShot instance
+     * @param x vertical coordinate
+     * @param y horizontal coordinate
+     */
     Enemy(int x, int y) {
         super(x, y);
         rand = new Random();
-        loadImage("./src/main/resources/enemy.png");
+        try {
+            loadSprite("enemy.png");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         width=ENEMY_WIDTH;
         height=ENEMY_HEIGHT;
         dx=1;
         almostDied=false;
-        bomb=new Bomb(0, 0);
-        bomb.die();
+        enemyShot =new EnemyShot(0, 0);
+        enemyShot.die();
     }
 
+    /**
+     * randomly determines if should shoot, if so sets its shot active
+     */
     void tryToShoot() {
         int random = rand.nextInt()%400;
-        if(random==1 && !this.bomb.visible && this.visible){
-            this.bomb.x=this.x+ENEMY_WIDTH/2;
-            this.bomb.y=this.y+ENEMY_HEIGHT;
-            this.bomb.visible=true;
+        if(random==1 && !this.enemyShot.visible && this.visible){
+            this.enemyShot.x=this.x+ENEMY_WIDTH/2;
+            this.enemyShot.y=this.y+ENEMY_HEIGHT;
+            this.enemyShot.visible=true;
         }
     }
 
+    /**
+     * sets Enemy's state
+     * @param almostDied boolean flag if almost dying or not
+     */
     void setAlmostDied(boolean almostDied) {
         this.almostDied = almostDied;
-    }
-
-    @Override
-    public void move() {
-        super.move();
     }
 
 }
