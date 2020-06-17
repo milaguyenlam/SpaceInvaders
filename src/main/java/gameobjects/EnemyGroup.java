@@ -9,7 +9,7 @@ import static gameboards.Constants.*;
 public class EnemyGroup {
 
     private List<Enemy> enemies;
-    private Integer numberOfEnemies;
+    private int numberOfEnemies;
     private int enemySpeed;
 
     /**
@@ -24,7 +24,7 @@ public class EnemyGroup {
      * get current number of enemies
      * @return current number of enemies
      */
-    public Integer getNumberOfEnemies() {
+    public int getNumberOfEnemies() {
         return numberOfEnemies;
     }
 

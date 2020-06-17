@@ -1,5 +1,7 @@
 package gameboards;
 
+import java.awt.*;
+
 /**
  * Static class holding all the constant values that are used in Board (gameobject sizes, speeds, ...)
  */
@@ -30,4 +32,10 @@ public class Constants {
     public static final int OBSTACLE_POSX = 90;
     public static final int OBSTACLE_POSY = 300;
     public static final int NUMBER_OF_ENEMIES = 32;
+    public static final String USER_NAME_REGEXP = "^[aA-zZ]\\w{5,29}$";
+    public static final Font GAME_FONT = new Font("Helvetica", Font.PLAIN, 15);
+    public static final int ENEMY_RANDOM_CONSTANT = 400;
+    public static final String DB_SCORES_COLLECTION = "scores";
+    public static final String DB_SCORE_ATTRIBUTE = "score";
+    public static final String DB_NAME_ATTRIBUTE = "name";
 }

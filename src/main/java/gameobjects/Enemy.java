@@ -2,8 +2,8 @@ package gameobjects;
 
 import java.io.IOException;
 import java.util.Random;
-import static gameboards.Constants.ENEMY_HEIGHT;
-import static gameboards.Constants.ENEMY_WIDTH;
+
+import static gameboards.Constants.*;
 
 /**
  * Enemy Game Object
@@ -56,7 +56,7 @@ public class Enemy extends MovingObject {
      * randomly determines if should shoot, if so sets its shot active
      */
     void tryToShoot() {
-        int random = rand.nextInt()%400;
+        int random = rand.nextInt(ENEMY_RANDOM_CONSTANT);
         if(random==1 && !this.enemyShot.visible && this.visible){
             this.enemyShot.x=this.x+ENEMY_WIDTH/2;
             this.enemyShot.y=this.y+ENEMY_HEIGHT;

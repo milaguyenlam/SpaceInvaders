@@ -1,2 +1,8 @@
 target
 src/main/resources/ServiceAccountKey.json
+.idea
+.settings
+.vscode
+doc
+.classpath
+.project
